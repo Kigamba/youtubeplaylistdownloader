@@ -1,0 +1,6 @@
+*.credentials
+**/client_secret.json
+.vscode
+out/*.playlists.json
+*.pyc
+
