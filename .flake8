@@ -1,0 +1,17 @@
+[flake8]
+ignore =
+    # indentation is not a multiple of four,
+    E111,E114,
+    # Continuation line under-indented for hanging indent
+    E121,
+    # visually indented line with same indent as next logical line,
+    E129,
+    # line too long
+    E501,
+    # line break between binary operator
+    W503,
+    # line break after binary operator
+    W504,
+
+
+max-line-length=80

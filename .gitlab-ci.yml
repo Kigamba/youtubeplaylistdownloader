@@ -1,24 +1,63 @@
-image: "python:3"
+image: "registry.gitlab.com/planetsoni/youtubeplaylistdownloader"
+cache:
+  paths:
+    - .conda_env*
+  key:
+    files:
+      - Makefile
+      - requirements.txt
 
 stages:
-  - validate
   - test
   - deploy
+  - artifact
 
 before_script:
-  - pip3 install --no-cache-dir
-      flake8 
-      google_auth_oauthlib 
-      google-api-python-client
-      pytest
-      yapf
-
-validate:
-  stage: validate
-  script:
-    - make validate
+  - make setup
 
 test:
   stage: test
   script:
+    - make validate
     - make test
+    - make coverage-test
+  only:
+    - merge_requests
+    - master
+  except:
+    - tags
+
+artifact:
+  stage: artifact
+  artifacts:
+    paths:
+      - coverage
+      - doc
+  script:
+    - make coverage-report
+    - make doc
+  only:
+    - merge_requests
+    - master
+  except:
+    - tags
+
+coverage-info:
+  stage: test
+  script:
+    - make coverage-percent
+  coverage: '/\d+\.\d+/'
+  only:
+    - merge_requests
+    - master
+  except:
+    - tags
+
+deploy:
+  stage: deploy
+  script:
+    - make deploy
+  only:
+    - master
+  except:
+    - tags

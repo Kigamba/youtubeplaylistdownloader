@@ -1,6 +1,19 @@
+**/client_secret.json*
+!**/client_secret.json.sample
 *.credentials
-**/client_secret.json
-.vscode
-out/*.playlists.json
-*.pyc
 
+**/*.playlists.json
+**/*.playlists.txt
+*.pyc
+.vscode
+
+.coverage*
+coverage
+
+.conda_env*
+
+doc
+
+dist
+build
+*.egg-info

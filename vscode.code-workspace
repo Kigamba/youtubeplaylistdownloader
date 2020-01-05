@@ -12,6 +12,11 @@
 			"source.organizeImports": true
 		},
 		"python.linting.flake8Enabled": true,
-		"python.linting.pylintEnabled": false
+		"python.linting.pylintEnabled": false,
+		"files.insertFinalNewline": true,
+		"editor.rulers": [
+			80
+		],
+		"autoDocstring.docstringFormat": "google"
 	}
 }
