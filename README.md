@@ -27,5 +27,5 @@ youtube_playlist_downloader \
 
 ## Installation
 ```bash
-pip install youtube_playlist_downloader
+pip install youtube-playlist-downloader
 ```
