@@ -30,6 +30,11 @@ DEFAULT_FILE_EXT = ".playlists.txt"
 
 CLIENT_SECRETS_FILE = 'secret/client_secret.json'
 
+# Credentials are stored for future once user gives permission to access
+# their account
+CREDENTIAL_FILE_EXT = '.credential'
+CREDENTIAL_FOLDER = "credentials"
+
 
 def _non_empty_arg(arg):
     if arg.strip() == "":
@@ -76,6 +81,21 @@ def _get_parsed_args(args):
                         type=_non_empty_arg)
 
     parser.add_argument(
+        '-e',
+        '--credentialfolder',
+        help=('Provide folder path to read/write credential files. ' +
+              "If '-c' is provided, this argument is ignored. "
+              'Defaults to \'%(default)s\'.'),
+        default=CREDENTIAL_FOLDER,
+        type=_non_empty_arg)
+
+    parser.add_argument('-c',
+                        '--credential',
+                        help=('Provide path to read/write credential file. ' +
+                              'Defaults to \'%(default)s\'.'),
+                        type=_non_empty_arg)
+
+    parser.add_argument(
         '--format',
         help=('Provide output format. ' +
               'You can provide multiple formats by repeating this option. ' +
@@ -102,7 +122,7 @@ def _get_parsed_args(args):
 
 
 def fetch_playlists(playlist_downloader, client_secret_file, profile,
-                    force_authenticate):
+                    credential_folder, credential_file, force_authenticate):
     """Fetches playlists object with provided profile and downloader.
 
     Args:
@@ -114,6 +134,10 @@ def fetch_playlists(playlist_downloader, client_secret_file, profile,
 
         profile(`str`): Profile name to associate with credentials
 
+        credential_folder (`str`): Folder to store credentials
+
+        credential_file (`str`): File to store credentials
+
         force_authenticate(`bool`): Perform authentication even though
             credentials exist
 
@@ -121,9 +145,13 @@ def fetch_playlists(playlist_downloader, client_secret_file, profile,
         list: List of playlist results which are composed of simple data types
             so they can be simply encoded to json
     """
+
+    credential_file = _get_credential_filename(profile, credential_folder,
+                                               credential_file)
+
     try:
         return playlist_downloader.download_playlists(client_secret_file,
-                                                      profile,
+                                                      profile, credential_file,
                                                       force_authenticate)
     except Exception as e:
         print("Exception occured: %s.\n"
@@ -147,6 +175,12 @@ def get_output_filepath_prefix(profile, outfolder):
         str: Output file path
     """
     return '%s/%s.%s' % (outfolder, profile, _get_today())
+
+
+def _get_credential_filename(profile, credential_folder, credential_file):
+    if (credential_file is None):
+        credential_file = credential_folder + "/" + profile + CREDENTIAL_FILE_EXT
+    return credential_file
 
 
 def _write_json_file(json_object, filename):
@@ -206,9 +240,13 @@ def main():
 
 def _main(playlist_downloader, args):
     parsed_args = _get_parsed_args(args)
+
     playlist_object = fetch_playlists(playlist_downloader,
                                       parsed_args.secretfile,
-                                      parsed_args.profile, parsed_args.force)
+                                      parsed_args.profile,
+                                      parsed_args.credentialfolder,
+                                      parsed_args.credential,
+                                      parsed_args.force)
     if playlist_object is not None:
         outfileprefix = get_output_filepath_prefix(parsed_args.profile,
                                                    parsed_args.outfolder)

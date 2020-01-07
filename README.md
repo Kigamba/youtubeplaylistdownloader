@@ -9,10 +9,13 @@ for Google developer project. You can follow *Before You Start* section in
 page. Once your project is created, create OAuth 2.0 client credentials
 in [console](https://console.developers.google.com/apis/credentials).
 Download *\*.json* file and use it as a *secretfile* positional argument
-at command line. The command saves user OAuth tokens in `credentials` folder in
-the working directory. Next time when the script runs from that directory,
+at command line. The command by default saves user OAuth tokens in `credentials`
+ folder in the working directory. Next time when the script runs from that directory,
 reauthentication is not necessary for corresponding profile,
 unless `--force` option is used.
+Credential folder can also be provided with `-e` option.
+Credential file path could also be provided with `c` option,
+and that will override other options.
 
 Here are few commands you can:
 ```bash

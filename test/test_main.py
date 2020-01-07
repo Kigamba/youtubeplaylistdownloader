@@ -13,10 +13,12 @@
 # limitations under the License.
 
 import json
+import os
 
 import pytest
 
 from youtube_playlist_downloader import main
+from youtube_playlist_downloader.api_client import ApiClient
 from youtube_playlist_downloader.playlist_downloader import (Playlist,
                                                              PlaylistDownloader
                                                              )
@@ -129,36 +131,62 @@ class TestClass:
         assert "test" in fileprefix
         assert fileprefix.endswith(main._get_today())
 
-    def assert_credentials_and_playlist(self, outfolder):
+    def assert_credentials_and_playlist(self, outfolder, numvideos, numlines):
+        self.assert_credentials(outfolder)
+        self.assert_playlist(outfolder, numvideos, numlines)
+
+    def assert_credentials(self, outfolder):
         credentials = PlaylistDownloader._load_credentials(
-            PlaylistDownloader._get_filename(TEST_PROFILE))
+            main._get_credential_filename(TEST_PROFILE, outfolder, None))
         assert credentials == MockApiClient.CREDENTIALS
 
+    def assert_playlist(self, outfolder, numvideos, numlines):
         outfileprefix = main.get_output_filepath_prefix(
             TEST_PROFILE, outfolder)
         with open(main._get_json_filename(outfileprefix), "r") as infile:
             json_object = json.load(infile)
             for playlist in json_object:
-                assert len(playlist.get(
-                    Playlist.VIDEOS_KEY)) == MockApiClient.MAX_RESULTS
+                assert len(playlist.get(Playlist.VIDEOS_KEY)) == numvideos
 
         with open(main._get_default_filename(outfileprefix), "r") as infile:
             obj = infile.readlines()
-            assert len(obj) > MockApiClient.MAX_RESULTS
+            assert len(obj) > numlines
 
-    def test_main(self, tmpdir):
+    def test_main_mock(self, tmpdir):
         downloader = PlaylistDownloader(MockApiClient())
         secretfile = str(tmpdir.join("secretfile"))
         with open(secretfile, 'w'):
             pass
         outfolder = str(tmpdir)
         options = [
-            "--profile", TEST_PROFILE, "-o", outfolder, "--format", "default",
-            "--format", "json", secretfile
+            "--profile", TEST_PROFILE, "-o", outfolder, "-e", outfolder,
+            "--format", "default", "--format", "json", secretfile
         ]
         main._main(downloader, options)
-        self.assert_credentials_and_playlist(outfolder)
+        self.assert_credentials_and_playlist(outfolder,
+                                             MockApiClient.MAX_RESULTS,
+                                             MockApiClient.MAX_RESULTS)
 
         options.insert(0, "-f")
         main._main(downloader, options)
-        self.assert_credentials_and_playlist(outfolder)
+        self.assert_credentials_and_playlist(outfolder,
+                                             MockApiClient.MAX_RESULTS,
+                                             MockApiClient.MAX_RESULTS)
+
+    @pytest.mark.skipif(os.environ.get('CI') != "true",
+                        reason="functional test only performed in ci pipeline")
+    def test_main_functional(self, tmpdir):
+        downloader = PlaylistDownloader(ApiClient())
+        secretfile = str(tmpdir.join("secretfile"))
+        with open(secretfile, 'w'):
+            pass
+        outfolder = str(tmpdir)
+        credential_file = os.environ["TEST_CREDENTIAL"]
+        outfolder = str(tmpdir)
+        options = [
+            "--profile", TEST_PROFILE, "-o", outfolder, "-c", credential_file,
+            "--format", "default", "--format", "json", secretfile
+        ]
+        main._main(downloader, options)
+
+        self.assert_playlist(outfolder, 1, 0)

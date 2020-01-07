@@ -17,13 +17,9 @@ It provides Playlist and PlaylistSet classes to store fechted results.
 PlaylistDownloader communicates with YouTube with ApiClient and returns
 final result to the caller.
 """
+import base64
 import os
 import pickle
-
-# Credentials are stored for future once user gives permission to access
-# their account
-CREDENTIAL_FILE_EXT = '.credentials'
-CREDENTIAL_FOLDER = "credentials/"
 
 
 class Playlist:
@@ -99,45 +95,48 @@ class PlaylistDownloader:
         self.api_client = api_client
 
     @staticmethod
-    def _get_filename(profile):
-        return CREDENTIAL_FOLDER + profile + CREDENTIAL_FILE_EXT
-
-    @staticmethod
     def _load_credentials(filename):
         credentials = None
         if os.path.isfile(filename):
             with open(filename, "rb") as f:
-                credentials = pickle.load(f)
+                serialized = f.read()
+            prep = base64.b64decode(serialized)
+            credentials = pickle.loads(prep)
         return credentials
 
     @staticmethod
     def _save_credentials(filename, credentials):
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        os.makedirs(os.path.dirname(os.path.abspath(filename)), exist_ok=True)
+        prep = pickle.dumps(credentials)
+        # Store it with base64 econding to easily allow transferring as text
+        serialized = base64.b64encode(prep)
         with open(filename, "wb") as f:
-            pickle.dump(credentials, f)
+            f.write(serialized)
 
-    def _authenticate(self, client_secret_file, profile, force_authenticate):
-        filename = self._get_filename(profile)
-        return self._ensure_credentials(client_secret_file, filename,
+    def _authenticate(self, client_secret_file, profile, credential_file,
+                      force_authenticate):
+        return self._ensure_credentials(client_secret_file, credential_file,
                                         force_authenticate)
 
     def _ensure_credentials(
             self,
             client_secret_file,
-            outfile,
+            credential_file,
             force_authenticate,
     ):
-        credentials = self._load_credentials(outfile)
+        credentials = None
+        if not force_authenticate:
+            credentials = self._load_credentials(credential_file)
 
-        if not credentials or force_authenticate:
+        if credentials is None:
             credentials = self._fetch_and_save_credentials(
-                client_secret_file, outfile)
+                client_secret_file, credential_file)
 
         return credentials
 
-    def _fetch_and_save_credentials(self, client_secret_file, outfile):
+    def _fetch_and_save_credentials(self, client_secret_file, credential_file):
         credentials = self.api_client.fetch_credentials(client_secret_file)
-        self._save_credentials(outfile, credentials)
+        self._save_credentials(credential_file, credentials)
         return credentials
 
     def _add_videos_to_playlist(self, playlist):
@@ -164,7 +163,7 @@ class PlaylistDownloader:
                 break
         return user_playlists.get_json_object()
 
-    def download_playlists(self, client_secret_file, profile,
+    def download_playlists(self, client_secret_file, profile, credential_file,
                            force_authenticate):
         """Downloads playlists using credentials for given profile
 
@@ -178,14 +177,17 @@ class PlaylistDownloader:
             client_secret_file (`str`): Path to client secret associated
                 with the app
 
+            credential_file (`str`): File to read/write credentials
+
             force_authenticate (`bool`): Authenticates regardless of existence
-                of credentials
+                of credentialsisCI = os.environ.get('CI')
+        if isCI == "true"
 
         Returns:
             `list`: List of playlist data with simple datatypes that could
                 be simply encoded to json
         """
         credentials = self._authenticate(client_secret_file, profile,
-                                         force_authenticate)
+                                         credential_file, force_authenticate)
         self.api_client.initialize(credentials)
         return self._fetch_user_playlists()
