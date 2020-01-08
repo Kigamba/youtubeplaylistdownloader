@@ -9,8 +9,8 @@ cache:
 
 stages:
   - test
-  - deploy
   - artifact
+  - deploy
 
 before_script:
   - make setup
@@ -61,3 +61,15 @@ deploy:
     - master
   except:
     - tags
+
+pages:
+  stage: deploy
+  dependencies:
+    - artifact
+  script:
+    - mv doc/youtube_playlist_downloader public
+  artifacts:
+    paths:
+      - public
+  only:
+    - master

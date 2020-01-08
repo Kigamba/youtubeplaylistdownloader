@@ -18,6 +18,9 @@ Run following command to set up conda environment.
 ```bash
 make setup
 ```
+Open Visual Studio Code workspace using *vscode.code-workspace* file.
+Choose conda python version on the bottom left side of window.
+
 ## Development
 Create a branch off of `master` and make necessary changes. Run appropriate commands in following sections. When ready, follow [Release](#release) guidelines.
 
@@ -45,7 +48,9 @@ After making changes to [Dockerfile](Dockerfile), run
 ```bash
 make docker-push
 ```
-If you want to test docker container run following command.
+
+If you want to test docker container or want to have build server environment,
+run following command:
 ```bash
 make console
 ```
@@ -56,6 +61,12 @@ make clean
 ```
 
 ## Release
-Create a pull request to merge your branch to `master`. Make sure to use option to squash commits. The project has content delivery pipeline buit into it.
-When the pull request is approved and merged, packages will be released to *PyPI*.
-Delete your development branch.
+Create a pull request to merge your branch to `master`.
+Make sure to use option to squash commits and delete branch after merge.
+The project has content delivery pipeline buit into it.
+When the pull request is approved and merged, packages will be auto released
+to *PyPI*.
+
+## Documentation
+Package documentation for the latest release is available at
+[https://planetsoni.gitlab.io/youtubeplaylistdownloader](https://planetsoni.gitlab.io/youtubeplaylistdownloader/).

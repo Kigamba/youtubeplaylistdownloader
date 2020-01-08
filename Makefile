@@ -143,7 +143,7 @@ coverage-percent:
 .PHONY: coverage-test
 coverage-test: COVERAGE_THRESHOLD := 75
 coverage-test:
-	$(CONDA_ACTIVATE) && $(CONDA_POST_ACTIVATE) && \
+	@$(CONDA_ACTIVATE) && $(CONDA_POST_ACTIVATE) && \
 		$(MAKE) -s --no-print-directory coverage-percent \
 		| xargs echo "$(COVERAGE_THRESHOLD) <" \
 		| bc | xargs test 0 -lt  && echo "Code coverage threshold met." \
@@ -153,10 +153,13 @@ coverage-test:
 .PHONY: coverage-report
 coverage-report: coverage-run
 	@$(CONDA_ACTIVATE) && $(CONDA_POST_ACTIVATE) && \
-		$(CPYTHON_BIN) -m coverage json --pretty-print -o  coverage/coverage.json && \
+		# $(CPYTHON_BIN) -m coverage json --pretty-print -o  coverage/coverage.json && \
 		$(CPYTHON_BIN) -m coverage html -d coverage/html && \
 		$(CPYTHON_BIN) -m coverage report | tee coverage/coverage.txt && \
 		$(CONDA_DEACTIVATE)
+
+.PHONY: coverage
+coverage: coverage-report coverage-test
 
 .PHONY: coverage-clean
 coverage-clean:

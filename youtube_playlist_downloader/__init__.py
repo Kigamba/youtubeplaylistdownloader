@@ -17,11 +17,5 @@ It could be directly used on command line.
 
     Usage:
 
-    python3 youtube_playlist_downloader \
-[-f|--force] [-p|--profile PROFILE]
-
-    -f, --force
-        Authenticates even though prior credentials are stored
-    -p PROFILE, --profile PROFILE
-        Name to associate with output and credentials file names
+    youtube-playlist-downloader -h # For details of usage
 """

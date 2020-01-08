@@ -3,6 +3,12 @@
 This package provides a script to download YouTube playlists for a user.
 It has been tested with both *CPython* and *PyPy*.
 
+## Installation
+```bash
+pip install youtube-playlist-downloader
+```
+
+## Usage
 To use it, you will need to have access to OAuth 2.0 client credentials 
 for Google developer project. You can follow *Before You Start* section in
 [Getting Started](https://developers.google.com/youtube/v3/getting-started)
@@ -14,21 +20,16 @@ at command line. The command by default saves user OAuth tokens in `credentials`
 reauthentication is not necessary for corresponding profile,
 unless `--force` option is used.
 Credential folder can also be provided with `-e` option.
-Credential file path could also be provided with `c` option,
+Credential file path could also be provided with `-c` option,
 and that will override other options.
 
 Here are few commands you can:
 ```bash
-youtube_playlist_downloader -h # For help
-youtube_playlist_downloader \
+youtube-playlist-downloader -h # For help
+youtube-playlist-downloader \
     --profile joe4939 \
     --outfolder myplaylists \
     --format json \
     --format default \
     my_app_client_secret.json
-```
-
-## Installation
-```bash
-pip install youtube-playlist-downloader
 ```
