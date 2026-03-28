@@ -189,7 +189,7 @@ def _write_json_file(json_object, filename):
 
 
 def _write_default_file(json_object, filename):
-    with open(filename, "w") as outfile:
+    with open(filename, "w", encoding="utf-8") as outfile:
         for playlist in json_object:
             outfile.write('Playlist Title: %s, Id: %s, Count: %d\n'
                           '-----------------------------------------------\n' %

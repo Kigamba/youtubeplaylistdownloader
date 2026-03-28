@@ -140,6 +140,7 @@ class PlaylistDownloader:
         return credentials
 
     def _add_videos_to_playlist(self, playlist):
+        print("Adding videos to playlist")
         next_page_token = None
         while True:
             partial_items, next_page_token = self.api_client.fetch_videos_of_playlist(
@@ -152,15 +153,28 @@ class PlaylistDownloader:
     def _fetch_user_playlists(self):
         user_playlists = PlaylistSet()
         next_page_token = None
+        counter = 0
         while True:
             partial_items, next_page_token = self.api_client.fetch_user_playlists(
                 next_page_token)
             for item in enumerate(partial_items):
                 playlist = Playlist(item)
+                print("Playlist added: " + str(counter))
+                print("Playlist id: " + playlist.get_id())
+                print("Title: " + playlist.get_json_object()["snippet"]["title"])
+                print("")
+                # if counter == 0:
+                #     self._add_videos_to_playlist(playlist)
                 self._add_videos_to_playlist(playlist)
                 user_playlists.add_playlist(playlist)
+                counter += 1
             if next_page_token is None:
+                print("Next page token is none")
+                print("")
                 break
+            else:
+                print("Next page token: " + next_page_token)
+                print("")
         return user_playlists.get_json_object()
 
     def download_playlists(self, client_secret_file, profile, credential_file,
