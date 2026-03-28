@@ -1,13 +1,20 @@
+# CLI / system tools (unchanged - managed outside pip)
 bc
-bump2version
 curl
-coverage==5.*
-flake8==3.7.*, >=3.7.9
 jq
-google-auth-oauthlib
-google-api-python-client==1.7.*,>=1.7.11
-rope
-pdoc3>=0.7.2
-pytest==5.3.*,>=5.3.2
-twine
-yapf>=0.28
+
+# Python packages
+bump2version>=1.0.1
+coverage>=7.6
+flake8>=7.0
+
+google-auth-oauthlib>=1.2.0
+google-api-python-client>=2.150.0
+
+rope>=1.13.0
+pdoc>=14.0.0
+
+pytest>=8.3
+
+twine>=5.0.0
+yapf>=0.40.0
